@@ -16,6 +16,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "node --watch app/server.ts",
+    "build": "cp node_modules/htmx.org/dist/htmx.js app/public/htmx.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
