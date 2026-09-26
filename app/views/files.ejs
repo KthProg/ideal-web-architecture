@@ -1,0 +1,12 @@
+<% if (files.length === 0) { %>
+<p>No files found.</p>
+<% } else { %>
+<ul>
+    <% files.forEach(file => { %>
+    <li>
+        <%= file.isDirectory ? '📁' : '📄' %>
+        <%= file.name %>
+    </li>
+    <% }) %>
+</ul>
+<% } %>

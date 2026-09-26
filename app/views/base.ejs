@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title><%= title %></title>
+  <script src="public/htmx.js"></script>
+</head>
+<body>
+  <h1><%= title %></h1>
+  <button
+    hx-post="/files"
+    hx-target="#files-list"
+    hx-swap="innerHTML">
+    Create Random File
+  </button>
+  <button
+    hx-get="/files"
+    hx-target="#files-list"
+    hx-swap="innerHTML">
+    Refresh Files
+  </button>
+  <section id="files-list">
+    <%- content %>
+  </section>
+</body>
+</html>
