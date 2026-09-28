@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      detect-character-encoding:
+        specifier: ^0.9.0
+        version: 0.9.0
       ejs:
         specifier: ^6.0.1
         version: 6.0.1
@@ -15,6 +18,9 @@ importers:
         specifier: 2.0.11
         version: 2.0.11
     devDependencies:
+      '@types/detect-character-encoding':
+        specifier: ^0.7.2
+        version: 0.7.2
       '@types/ejs':
         specifier: ^3.1.5
         version: 3.1.5
@@ -573,6 +579,9 @@ packages:
   '@swc/types@0.1.28':
     resolution: {integrity: sha512-V6Mnml8v09QALx6K0elJ7o9K/MkVDtW3t6L+7Ou/JcWtb3xwId2AH4FeOceySd2JaO87IMw4+6vSZxLm34LPbw==}
 
+  '@types/detect-character-encoding@0.7.2':
+    resolution: {integrity: sha512-sOCksAr7GD6Eota8pc9MNa/6pgagkTLs9VWlzQBxl9ydlxoyptes20FnPcFpDFbjVU3xeidOj+lJZK6WoIRR0Q==}
+
   '@types/ejs@3.1.5':
     resolution: {integrity: sha512-nv+GSx77ZtXiJzwKdsASqi+YQ5Z7vwHsTP0JY2SiQgjGckkBRKZnk8nIM+7oUZ1VCtuTz0+By4qVR7fqzp/Dfg==}
 
@@ -590,6 +599,9 @@ packages:
     resolution: {integrity: sha512-GLQdD3y6UF8iVuMJl5fHgE4jdn/ua7n+toKfLgNlg3BqQtOZjpy68T8Tup8/wGWZCDlm7KMg7tPb4MPn7oN0TQ==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+
+  bindings@1.5.0:
+    resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
 
   browserslist@4.29.1:
     resolution: {integrity: sha512-AUdjuRyCNGUYtqpqfTmWyM4fXay8yIQhmLnvYe/THMGfT9B/34X7xQd3ifKxwyNPPpowVBjLb+64BN9Rn1mizw==}
@@ -622,6 +634,10 @@ packages:
     resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
     engines: {node: '>=18'}
 
+  detect-character-encoding@0.9.0:
+    resolution: {integrity: sha512-7vm4ghe8g618ARXr6rED/wQwx6qSKSUCEf/367/0s7icyLgpv39rCjgX7M9HBPdWz6jzYgTDxmt3qY2vcuxO5w==}
+    engines: {node: '>=18'}
+
   detect-libc@1.0.3:
     resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
     engines: {node: '>=0.10'}
@@ -650,6 +666,9 @@ packages:
   escalade@3.2.0:
     resolution: {integrity: sha512-WUj2qlxaQtO4g6Pq5c29GTcWGDyd8itL8zTlipgECz3JesAiiOKotd8JU6otB3PACgG6xkJUyVhboMS+bje/jA==}
     engines: {node: '>=6'}
+
+  file-uri-to-path@1.0.0:
+    resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
 
   get-port@4.2.0:
     resolution: {integrity: sha512-/b3jarXkH8KJoOMQc3uVGHASwGLPq3gSFJ7tgJm2diza+bydJPTGOibin2steecKeOylE8oY2JERlVWkAJO6yw==}
@@ -763,6 +782,9 @@ packages:
 
   msgpackr@1.12.1:
     resolution: {integrity: sha512-4EUH9tQHnMmEgzW/MdAP0KIfa1T9AF+htl0ffe2n5vb2EKn9y2co8ccpgWko6S52Jy1PQZKwRnx5/KkYjtd9MQ==}
+
+  nan@2.29.0:
+    resolution: {integrity: sha512-GlGk3HIvitbvs+LT3g6XUP1kpirKNvmDFwF/bmo6XNWSb/eYEs/O4bfgIEIXCZ+lIOTS5xNwDvSGMw6FJdAhtA==}
 
   node-addon-api@6.1.0:
     resolution: {integrity: sha512-+eawOlIgy680F0kBzPUNFhMZGtJ1YmqM6l4+Crf4IkImjYrO/mqPwRMh352g23uIaQKFItcQ64I7KMaJxHgAVA==}
@@ -1608,6 +1630,10 @@ snapshots:
     dependencies:
       '@swc/counter': 0.1.3
 
+  '@types/detect-character-encoding@0.7.2':
+    dependencies:
+      '@types/node': 26.6.2
+
   '@types/ejs@3.1.5': {}
 
   '@types/node@26.6.2':
@@ -1623,6 +1649,10 @@ snapshots:
       safe-buffer: 5.2.1
 
   baseline-browser-mapping@2.11.26: {}
+
+  bindings@1.5.0:
+    dependencies:
+      file-uri-to-path: 1.0.0
 
   browserslist@4.29.1:
     dependencies:
@@ -1651,6 +1681,11 @@ snapshots:
 
   commander@12.1.0: {}
 
+  detect-character-encoding@0.9.0:
+    dependencies:
+      bindings: 1.5.0
+      nan: 2.29.0
+
   detect-libc@1.0.3: {}
 
   detect-libc@2.1.2: {}
@@ -1666,6 +1701,8 @@ snapshots:
   electron-to-chromium@1.5.439: {}
 
   escalade@3.2.0: {}
+
+  file-uri-to-path@1.0.0: {}
 
   get-port@4.2.0: {}
 
@@ -1764,6 +1801,8 @@ snapshots:
   msgpackr@1.12.1:
     optionalDependencies:
       msgpackr-extract: 3.0.4
+
+  nan@2.29.0: {}
 
   node-addon-api@6.1.0: {}
 
