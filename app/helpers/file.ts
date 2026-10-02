@@ -2,7 +2,8 @@ import fs from 'fs/promises';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import getEncoding from 'detect-character-encoding';
-
+import iconv from 'iconv-lite';
+import { fileTypeFromFile } from "file-type";
 
 export class FileHelper {
     static get rootDir(){
@@ -18,6 +19,14 @@ export class FileHelper {
         return path.join(FileHelper.rootDir, 'notes');
     }
 
+    private static decodeFile(bytes: Buffer, encoding: string) {
+        try {
+            return new TextDecoder(encoding).decode(bytes);
+        } catch {
+            return iconv.decode(bytes, encoding);
+        }
+    }
+
     static async createRandomFile() {
         const newFilePath = path.join(FileHelper.filesDir, `test-${Date.now()}.md`);
         const newFileContent = `${Date.now()}`;
@@ -30,17 +39,27 @@ export class FileHelper {
     static async readTextContent(url: string) {
         const filePath = path.join(FileHelper.rootDir, url);
         const fileData = await fs.readFile(filePath);
-        const { encoding } = await FileHelper.getContentTypeAndEncoding(url);
-        return fileData.toString(encoding);
+        const currentEncoding = await FileHelper.detectFileEncoding(url);
+        return FileHelper.decodeFile(fileData, currentEncoding);
     }
 
-    static async getContentTypeAndEncoding(url: string) {
+    static async detectFileEncoding(url: string) {
         const filePath = path.join(FileHelper.rootDir, url);
         const fileData = await fs.readFile(filePath);
         const encodingResult = getEncoding(fileData);
+        return encodingResult?.encoding ?? 'utf8';
+    }
+
+    static async detectContentType(url: string) {
+        const filePath = path.join(FileHelper.rootDir, url);
+        return (await fileTypeFromFile(filePath)) ?? 'text/plain';
+    }
+
+    static async getFileContentTypeHeader(url: string) {
+        const encoding = await FileHelper.detectFileEncoding(url);
+        const mimeType = await FileHelper.detectContentType(url);
         return {
-            encoding: (encodingResult?.encoding as (BufferEncoding | undefined)) ?? 'utf8',
-            contentType: filePath.endsWith('.js') ? 'text/javascript' : 'text/plain',
+            'Content-Type': `${mimeType}; charset=${encoding}`
         };
     }
 }
