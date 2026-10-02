@@ -6,6 +6,10 @@ import { render as renderFilesList } from './render/files.ts';
 import { FILENAME_REGEX_EXPRESSION } from "./constants/file.ts";
 
 // FUTURE: RouteBuilder so we can compose routes more easily
+// FUTURE: some type of route handler persistent context, so we can do
+// things like open a file once in getData, and have the buffer available
+// in getHeaders without opening it again
+// FUTURE: middleware layer to transform incoming requests
 export const ROUTES: Route[] = [
     {
         path: new RegExp(`\/public\/${FILENAME_REGEX_EXPRESSION}`),
