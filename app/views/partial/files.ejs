@@ -3,10 +3,7 @@
 <% } else { %>
 <ul>
     <% files.forEach(file => { %>
-    <li>
-        <%= file.isDirectory ? '📁' : '📄' %>
-        <%= file.name %>
-    </li>
+        <%- include('file-item', { file }) %>
     <% }) %>
 </ul>
 <% } %>

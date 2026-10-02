@@ -22,7 +22,9 @@
   "dependencies": {
     "detect-character-encoding": "^0.9.0",
     "ejs": "^6.0.1",
-    "htmx.org": "2.0.11"
+    "file-type": "^22.1.1",
+    "htmx.org": "2.0.11",
+    "iconv-lite": "^0.7.3"
   },
   "devDependencies": {
     "@types/detect-character-encoding": "^0.7.2",

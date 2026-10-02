@@ -1,24 +1,22 @@
-import { HTML_ROUTE_HEADERS, HTTP_METHODS } from "./constants/http.ts";
+import { HTML_ROUTE_HEADERS, HTTP_METHODS, TEXT_ROUTE_HEADERS } from "./constants/http.ts";
 import { FileHelper } from "./helpers/file.ts";
 import type { Route } from "./types/route.ts";
 import { render as renderHomePage } from './render/home.ts';
 import { render as renderFilesList } from './render/files.ts';
+import { FILENAME_REGEX_EXPRESSION } from "./constants/file.ts";
 
+// FUTURE: RouteBuilder so we can compose routes more easily
 export const ROUTES: Route[] = [
     {
-        path: new RegExp('\/public\/.+(\.js)'),
+        path: new RegExp(`\/public\/${FILENAME_REGEX_EXPRESSION}`),
         allowedMethods: 'GET',
         getData: async (req, _res) => {
             const data = await FileHelper.readTextContent(req.url);
-            console.info(`file head (${req.url})`, data.slice(0, 1000));
+            console.info(`file head (${req.url})`, data.slice(0, 100));
             return data;
         },
         getHeaders: async (req, _res) => {
-            const contentTypeAndEncoding = await FileHelper.getContentTypeAndEncoding(req.url);
-            return {
-                // TODO: content type from file extension
-                'Content-Type': `${contentTypeAndEncoding.contentType}; charset=${contentTypeAndEncoding.encoding}`
-            }
+            return await FileHelper.getFileContentTypeHeader(req.url);
         },
     }, {
         path: '/',
@@ -39,6 +37,17 @@ export const ROUTES: Route[] = [
             return await renderFilesList();
         },
         headers: HTML_ROUTE_HEADERS,
+    }, {
+        path: new RegExp(`\/file\/${FILENAME_REGEX_EXPRESSION}`),
+        allowedMethods: 'GET',
+        getData: async (req, _res) => {
+            const normalizedUrl = req.url.replace('/file/', '/notes/');
+            return await FileHelper.readTextContent(normalizedUrl);
+        },
+        getHeaders: async (req, _res) => {
+            const normalizedUrl = req.url.replace('/file/', '/notes/');
+            return await FileHelper.getFileContentTypeHeader(normalizedUrl);
+        },
     },
 ];
 

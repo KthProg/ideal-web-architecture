@@ -14,6 +14,6 @@ export const render = async () => {
         isDirectory: file.isDirectory(),
     }));
 
-    const viewPath = path.join(__dirname, '../views', 'files.ejs');
+    const viewPath = path.join(__dirname, '../views/partial', 'files.ejs');
     return await ejs.renderFile(viewPath, { files: normalizedFiles });
 };

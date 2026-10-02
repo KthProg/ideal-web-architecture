@@ -1,0 +1,1 @@
+export const FILENAME_REGEX_EXPRESSION = '[A-Za-z0-9][A-Za-z0-9 _-]*(\.[A-Za-z0-9]+)?'
