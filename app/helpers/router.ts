@@ -6,6 +6,15 @@ import { ROUTE_METADATA_SYMBOL } from '../constants/routes.ts';
 import { HandlerMethod, RouteMetadata } from '../types/route.ts';
 
 export abstract class Router {
+    protected readBody(req: RouteRequest): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const chunks: Buffer[] = [];
+            req.on('data', chunk => chunks.push(chunk));
+            req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+            req.on('error', reject);
+        });
+    }
+
     private notFound(req: RouteRequest): HandlerResponse {
         return { status: 404, content: `No route matches URL: ${req.url}` };
     }

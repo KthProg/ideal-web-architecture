@@ -1,7 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
 import ejs from 'ejs';
-import { marked } from 'marked';
 
 const PUBLIC_MIME_TYPES: Record<string, string> = {
     '.css': 'text/css',
@@ -62,12 +61,30 @@ export class AppRouter extends Router {
         return { content: await this.renderFilesList(), headers: HTML_ROUTE_HEADERS };
     }
 
+    @Post(new RegExp(`\/file\/${FILENAME_REGEX_EXPRESSION}`))
+    async saveFile(req: RouteRequest): Promise<HandlerResponse> {
+        const filename = decodeURIComponent(path.basename(req.url));
+        const body = new URLSearchParams(await this.readBody(req));
+        const content = body.get('content') ?? '';
+        await FileHelper.writeNoteContent(filename, content);
+        const saved = await FileHelper.readNoteContent(filename);
+        return { content: `<markdown-editor editable hx-post="/file/${encodeURIComponent(filename)}" hx-trigger="md-change" hx-vals="js:{content: event.detail.content}">${saved}</markdown-editor>`, headers: HTML_ROUTE_HEADERS };
+    }
+
     @Get(new RegExp(`\/file\/${FILENAME_REGEX_EXPRESSION}`))
     async getFile(req: RouteRequest): Promise<HandlerResponse> {
         const normalizedUrl = req.url.replace('/file/', '/notes/');
         const raw = await FileHelper.readTextContent(normalizedUrl);
         if (path.extname(normalizedUrl).toLowerCase() === '.md') {
-            return { content: `<markdown-editor>${await marked(raw)}</markdown-editor>`, headers: HTML_ROUTE_HEADERS };
+            const filename = encodeURIComponent(path.basename(normalizedUrl));
+            return { content: `
+                <markdown-editor
+                    editable
+                    hx-post="/file/${filename}"
+                    hx-trigger="md-change"
+                    hx-vals="js:{content: event.detail.content}"
+                    hx-disabled-elt="this"
+                >${raw}</markdown-editor>`, headers: HTML_ROUTE_HEADERS };
         }
         const headers = await FileHelper.getFileContentTypeHeader(normalizedUrl);
         return { content: raw, headers };

@@ -56,6 +56,20 @@ export class FileHelper {
         return detected?.mime ?? 'text/plain';
     }
 
+    static async readNoteContent(filename: string) {
+        const safeName = path.basename(filename);
+        const filePath = path.join(FileHelper.filesDir, safeName);
+        const fileData = await fs.readFile(filePath);
+        const encoding = getEncoding(fileData)?.encoding ?? 'utf8';
+        return FileHelper.decodeFile(fileData, encoding);
+    }
+
+    static async writeNoteContent(filename: string, content: string) {
+        const safeName = path.basename(filename);
+        const filePath = path.join(FileHelper.filesDir, safeName);
+        await fs.writeFile(filePath, content, { encoding: 'utf8' });
+    }
+
     static async getFileContentTypeHeader(url: string) {
         const encoding = await FileHelper.detectFileEncoding(url);
         const mimeType = await FileHelper.detectContentType(url);
