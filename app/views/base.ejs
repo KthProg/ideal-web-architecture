@@ -7,7 +7,8 @@
     <%= title %>
   </title>
   <script src="public/htmx.js"></script>
-  <script src="public/components/markdown-editor.js"></script>
+  <script src="public/components/markdown-editor.js" defer></script>
+  <script src="public/components/editor-controls.js" defer></script>
   <link rel="stylesheet" href="public/styles/main.css" />
 </head>
 
@@ -24,6 +25,14 @@
     </section>
   </aside>
   <main class="layout-app__content">
+    <section id="editor-controls" is="editor-controls">
+      <button class="editor-controls__editor-mode-button">
+        Editor Mode
+      </button>
+      <button class="editor-controls__reading-mode-button">
+        Reading Mode
+      </button>
+    </section>
     <section id="note-content">
 
     </section>

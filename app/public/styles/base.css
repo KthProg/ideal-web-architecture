@@ -153,3 +153,9 @@ ul, ol {
 a {
     color: var(--color-accent);
 }
+
+textarea {
+    field-sizing: content;
+    min-height: 4lh;
+    width: 100%;
+}
