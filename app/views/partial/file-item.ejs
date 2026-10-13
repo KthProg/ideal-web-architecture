@@ -1,6 +1,12 @@
-<li hx-get="/file/<%= encodeURIComponent(file.name) %>"
-    hx-target="#file-content"
-    hx-swap="innerHTML">
-    <%= file.isDirectory ? '📁' : '📄' %>
-    <%= file.name %>
+<li class="file-item">
+    <button
+        hx-get="/file/<%= encodeURIComponent(file.name) %>"
+        hx-target="#file-content"
+        hx-swap="innerHTML"
+        type="button"
+        class="file-item__button"
+    >
+        <%= file.isDirectory ? '📁' : '📄' %>
+        <%= file.name %>
+    </button>
 </li>

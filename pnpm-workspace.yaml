@@ -1,7 +1,7 @@
 allowBuilds:
   '@parcel/watcher': false
   '@swc/core': false
-  detect-character-encoding: set this to true or false
-  esbuild: set this to true or false
+  detect-character-encoding: true
+  esbuild: true
   lmdb: false
   msgpackr-extract: false

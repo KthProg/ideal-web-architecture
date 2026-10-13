@@ -9,8 +9,8 @@
     --color-neutral-200: #e5e5e5;
     --color-neutral-700: #404040;
     --color-neutral-900: #111111;
-    --color-accent-500: #2563eb;
-    --color-accent-600: #1d4ed8;
+    --color-accent-500: #d1e0ff;
+    --color-accent-600: #3e528a;
 
     /* SPACING */
     --space-1: 0.25rem;
@@ -67,6 +67,12 @@
     --color-text-muted: var(--color-neutral-700);
     --color-accent: var(--color-accent-500);
     --color-accent-hover: var(--color-accent-600);
+    --color-on-accent: var(--color-neutral-0);
+
+    --color-button-bg: var(--color-bg);
+    --color-button-text: var(--color-text);
+    --color-button-bg-hover: var(--color-accent-600);
+    --color-button-text-hover: var(--color-on-accent);
 
     /* SPACING */
     --space-xs: var(--space-1);
@@ -96,6 +102,7 @@
     --radius-default: var(--radius-md);
     --shadow-card: var(--shadow-sm);
     --shadow-dropdown: var(--shadow-md);
+    --shadow-button: var(--shadow-md);
 
     /* MOTION */
     --duration-transition: var(--duration-base);
@@ -107,4 +114,42 @@
         --duration-transition: 0ms;
         --duration-animation: 0ms;
     }
+}
+
+/* ELEMENTS */
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--color-border);
+}
+
+button {
+    font: inherit;
+    cursor: pointer;
+    background: var(--color-button-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-default);
+    padding: var(--space-sm) var(--space-md);
+    color: var(--color-button-text);
+    box-shadow: var(--shadow-button);
+    transition: background var(--duration-transition) var(--ease-default);
+
+    &:hover {
+        background: var(--color-button-bg-hover);
+        color: var(--color-button-text-hover);
+    }
+}
+
+ul, ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+        margin-block: var(--space-sm);
+    }
+}
+
+a {
+    color: var(--color-accent);
 }

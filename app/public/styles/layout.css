@@ -1,25 +1,37 @@
-.layout-app {
-    display: grid;
-    grid-template-columns: var(--layout-single-width) var(--layout-double-width);
-    grid-template-areas: "sidebar content";
-    gap: var(--space-md);
-    min-height: 100dvh;
-    padding: var(--space-md);
-}
+@scope (.layout-app) {
+    :scope {
+        display: grid;
+        grid-template-columns: var(--layout-single-width) var(--layout-double-width);
+        grid-template-areas: "sidebar content";
+        gap: var(--space-md);
+        min-height: 100dvh;
+        padding: var(--space-md);
+    }
 
-.layout-app__sidebar {
-    grid-area: sidebar;
-}
+    .layout-app__sidebar {
+        grid-area: sidebar;
+        background-color: var(--color-accent);
+        padding: var(--space-md);
+        box-shadow: var(--shadow-md);
+        border-radius: var(--radius-default);
+    }
 
-.layout-app__content {
-    grid-area: content;
+    .layout-app__content {
+        grid-area: content;
+        background-color: var(--color-surface);
+        padding: var(--space-md);
+        box-shadow: var(--shadow-md);
+        border-radius: var(--radius-default);
+    }
 }
 
 @media (width < 768px) {
-    .layout-app {
-        grid-template-columns: var(--layout-single-width);
-        grid-template-areas:
-            "content"
-            "sidebar";
+    @scope (.layout-app) {
+        :scope {
+            grid-template-columns: var(--layout-single-width);
+            grid-template-areas:
+                "content"
+                "sidebar";
+        }
     }
 }

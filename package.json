@@ -15,7 +15,10 @@
   "author": "Kyle Hooks",
   "main": "index.js",
   "pnpm": {
-    "onlyBuiltDependencies": ["detect-character-encoding", "esbuild"]
+    "onlyBuiltDependencies": [
+      "detect-character-encoding",
+      "esbuild"
+    ]
   },
   "scripts": {
     "dev": "tsx --watch app/server.ts",
@@ -27,7 +30,8 @@
     "ejs": "^6.0.1",
     "file-type": "^22.1.1",
     "htmx.org": "2.0.11",
-    "iconv-lite": "^0.7.3"
+    "iconv-lite": "^0.7.3",
+    "marked": "^18.1.1"
   },
   "devDependencies": {
     "@types/detect-character-encoding": "^0.7.2",

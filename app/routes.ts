@@ -1,6 +1,7 @@
+import fs from 'fs/promises';
 import path from 'path';
-import { HTML_ROUTE_HEADERS } from './constants/http.ts';
-import { FileHelper } from './helpers/file.ts';
+import ejs from 'ejs';
+import { marked } from 'marked';
 
 const PUBLIC_MIME_TYPES: Record<string, string> = {
     '.css': 'text/css',
@@ -10,22 +11,32 @@ const PUBLIC_MIME_TYPES: Record<string, string> = {
     '.png': 'image/png',
     '.ico': 'image/x-icon',
 };
+import { HTML_ROUTE_HEADERS } from './constants/http.ts';
+import { FileHelper } from './helpers/file.ts';
 import { Router } from './helpers/router.ts';
 import { Get, Post } from './decorators/route.ts';
-import { render as renderHomePage } from './render/home.ts';
-import { render as renderFilesList } from './render/files.ts';
 import { FILENAME_REGEX_EXPRESSION } from './constants/file.ts';
 import type { RouteRequest, RouteResponse } from './types/request.ts';
 import type { HandlerResponse } from './types/handler-response.ts';
 
 export class AppRouter extends Router {
-    /**
-     * Only serves files from the public directory, hence we trust the extension for its
-     * file type here (but not for notes).
-     * @param req Raw request
-     * @param _res Raw response
-     * @returns Object with content (text) and headers including the file content type
-     */
+    private async renderFilesList(): Promise<string> {
+        const notesPath = path.join(FileHelper.rootDir, 'notes');
+        const files = await fs.readdir(notesPath, { withFileTypes: true });
+        const normalizedFiles = files.map((file) => ({
+            name: file.name,
+            isDirectory: file.isDirectory(),
+        }));
+        const viewPath = path.join(FileHelper.rootDir, 'views/partial', 'files.ejs');
+        return ejs.renderFile(viewPath, { files: normalizedFiles });
+    }
+
+    private async renderHome(): Promise<string> {
+        const bodyContent = await this.renderFilesList();
+        const baseViewPath = path.join(FileHelper.rootDir, 'views', 'base.ejs');
+        return ejs.renderFile(baseViewPath, { content: bodyContent, title: 'Home' });
+    }
+
     @Get(new RegExp(`\/public\/${FILENAME_REGEX_EXPRESSION}`))
     async servePublicFile(req: RouteRequest, _res: RouteResponse): Promise<HandlerResponse> {
         const content = await FileHelper.readTextContent(req.url);
@@ -37,25 +48,28 @@ export class AppRouter extends Router {
 
     @Get('/')
     async home(): Promise<HandlerResponse> {
-        return { content: await renderHomePage(), headers: HTML_ROUTE_HEADERS };
+        return { content: await this.renderHome(), headers: HTML_ROUTE_HEADERS };
     }
 
     @Get('/files')
     async getFiles(): Promise<HandlerResponse> {
-        return { content: await renderFilesList(), headers: HTML_ROUTE_HEADERS };
+        return { content: await this.renderFilesList(), headers: HTML_ROUTE_HEADERS };
     }
 
     @Post('/files')
     async createFile(): Promise<HandlerResponse> {
         await FileHelper.createRandomFile();
-        return { content: await renderFilesList(), headers: HTML_ROUTE_HEADERS };
+        return { content: await this.renderFilesList(), headers: HTML_ROUTE_HEADERS };
     }
 
     @Get(new RegExp(`\/file\/${FILENAME_REGEX_EXPRESSION}`))
     async getFile(req: RouteRequest): Promise<HandlerResponse> {
         const normalizedUrl = req.url.replace('/file/', '/notes/');
-        const content = await FileHelper.readTextContent(normalizedUrl);
+        const raw = await FileHelper.readTextContent(normalizedUrl);
+        if (path.extname(normalizedUrl).toLowerCase() === '.md') {
+            return { content: await marked(raw), headers: HTML_ROUTE_HEADERS };
+        }
         const headers = await FileHelper.getFileContentTypeHeader(normalizedUrl);
-        return { content, headers };
+        return { content: raw, headers };
     }
 }
