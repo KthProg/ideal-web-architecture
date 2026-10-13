@@ -1,0 +1,11 @@
+<li class="note-item">
+    <button
+        hx-get="/note/<%= encodeURIComponent(note.name) %>"
+        hx-target="#note-content"
+        hx-swap="innerHTML"
+        type="button"
+        class="note-item__button"
+    >
+        <%= note.name %>
+    </button>
+</li>

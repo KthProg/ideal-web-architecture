@@ -1,9 +1,0 @@
-<% if (files.length === 0) { %>
-<p>No files found.</p>
-<% } else { %>
-<ul class="files__list">
-    <% files.forEach(file => { %>
-        <%- include('file-item', { file }) %>
-    <% }) %>
-</ul>
-<% } %>

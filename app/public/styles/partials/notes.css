@@ -1,4 +1,4 @@
-@scope (.file-item) {
+@scope (.note-item) {
     button {
         --color-button-bg: var(--color-accent-600);
         --color-button-text: var(--color-on-accent);

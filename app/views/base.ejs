@@ -13,18 +13,18 @@
 
 <body class="layout-app">
   <aside class="layout-app__sidebar">
-    <button hx-post="/files" hx-target="#files-list" hx-swap="innerHTML">
-      Create Random File
+    <button hx-post="/notes" hx-target="#notes-list" hx-swap="innerHTML">
+      Create Note
     </button>
-    <button hx-get="/files" hx-target="#files-list" hx-swap="innerHTML">
-      Refresh Files
+    <button hx-get="/notes" hx-target="#notes-list" hx-swap="innerHTML">
+      Refresh
     </button>
-    <section id="files-list">
+    <section id="notes-list">
       <%- content %>
     </section>
   </aside>
   <main class="layout-app__content">
-    <section id="file-content">
+    <section id="note-content">
 
     </section>
   </main>

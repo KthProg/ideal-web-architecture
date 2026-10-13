@@ -2,5 +2,5 @@
 
 @import "base.css" layer(base);
 @import "layout.css" layer(layout);
-@import "partials/files.css" layer(partials);
+@import "partials/notes.css" layer(partials);
 @import "utilities.css" layer(utilities);

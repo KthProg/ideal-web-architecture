@@ -19,21 +19,24 @@ import type { RouteRequest, RouteResponse } from './types/request.ts';
 import type { HandlerResponse } from './types/handler-response.ts';
 
 export class AppRouter extends Router {
-    private async renderFilesList(): Promise<string> {
-        const notesPath = path.join(FileHelper.rootDir, 'notes');
-        const files = await fs.readdir(notesPath, { withFileTypes: true });
-        const normalizedFiles = files.map((file) => ({
-            name: file.name,
-            isDirectory: file.isDirectory(),
-        }));
-        const viewPath = path.join(FileHelper.rootDir, 'views/partial', 'files.ejs');
-        return ejs.renderFile(viewPath, { files: normalizedFiles });
+    private async renderNotesList(): Promise<string> {
+        const notes = await fs.readdir(FileHelper.filesDir, { withFileTypes: true });
+        const normalizedNotes = notes
+            .filter(n => !n.isDirectory())
+            .map(n => ({ name: n.name }));
+        const viewPath = path.join(FileHelper.rootDir, 'views/partial', 'notes.ejs');
+        return ejs.renderFile(viewPath, { notes: normalizedNotes });
     }
 
     private async renderHome(): Promise<string> {
-        const bodyContent = await this.renderFilesList();
+        const bodyContent = await this.renderNotesList();
         const baseViewPath = path.join(FileHelper.rootDir, 'views', 'base.ejs');
-        return ejs.renderFile(baseViewPath, { content: bodyContent, title: 'Home' });
+        return ejs.renderFile(baseViewPath, { content: bodyContent, title: 'Notes' });
+    }
+
+    private noteEditorHtml(filename: string, content: string): string {
+        const encoded = encodeURIComponent(filename);
+        return `<markdown-editor editable hx-post="/note/${encoded}" hx-trigger="md-change" hx-vals="js:{content: event.detail.content}" hx-disabled-elt="this">${content}</markdown-editor>`;
     }
 
     @Get(new RegExp(`\/public\/${FILENAME_REGEX_EXPRESSION}`))
@@ -50,43 +53,31 @@ export class AppRouter extends Router {
         return { content: await this.renderHome(), headers: HTML_ROUTE_HEADERS };
     }
 
-    @Get('/files')
-    async getFiles(): Promise<HandlerResponse> {
-        return { content: await this.renderFilesList(), headers: HTML_ROUTE_HEADERS };
+    @Get('/notes')
+    async listNotes(): Promise<HandlerResponse> {
+        return { content: await this.renderNotesList(), headers: HTML_ROUTE_HEADERS };
     }
 
-    @Post('/files')
-    async createFile(): Promise<HandlerResponse> {
+    @Post('/notes')
+    async createNote(): Promise<HandlerResponse> {
         await FileHelper.createRandomFile();
-        return { content: await this.renderFilesList(), headers: HTML_ROUTE_HEADERS };
+        return { content: await this.renderNotesList(), headers: HTML_ROUTE_HEADERS };
     }
 
-    @Post(new RegExp(`\/file\/${FILENAME_REGEX_EXPRESSION}`))
-    async saveFile(req: RouteRequest): Promise<HandlerResponse> {
+    @Get(new RegExp(`\/note\/${FILENAME_REGEX_EXPRESSION}`))
+    async getNote(req: RouteRequest): Promise<HandlerResponse> {
+        const filename = decodeURIComponent(path.basename(req.url));
+        const content = await FileHelper.readNoteContent(filename);
+        return { content: this.noteEditorHtml(filename, content), headers: HTML_ROUTE_HEADERS };
+    }
+
+    @Post(new RegExp(`\/note\/${FILENAME_REGEX_EXPRESSION}`))
+    async saveNote(req: RouteRequest): Promise<HandlerResponse> {
         const filename = decodeURIComponent(path.basename(req.url));
         const body = new URLSearchParams(await this.readBody(req));
         const content = body.get('content') ?? '';
         await FileHelper.writeNoteContent(filename, content);
         const saved = await FileHelper.readNoteContent(filename);
-        return { content: `<markdown-editor editable hx-post="/file/${encodeURIComponent(filename)}" hx-trigger="md-change" hx-vals="js:{content: event.detail.content}">${saved}</markdown-editor>`, headers: HTML_ROUTE_HEADERS };
-    }
-
-    @Get(new RegExp(`\/file\/${FILENAME_REGEX_EXPRESSION}`))
-    async getFile(req: RouteRequest): Promise<HandlerResponse> {
-        const normalizedUrl = req.url.replace('/file/', '/notes/');
-        const raw = await FileHelper.readTextContent(normalizedUrl);
-        if (path.extname(normalizedUrl).toLowerCase() === '.md') {
-            const filename = encodeURIComponent(path.basename(normalizedUrl));
-            return { content: `
-                <markdown-editor
-                    editable
-                    hx-post="/file/${filename}"
-                    hx-trigger="md-change"
-                    hx-vals="js:{content: event.detail.content}"
-                    hx-disabled-elt="this"
-                >${raw}</markdown-editor>`, headers: HTML_ROUTE_HEADERS };
-        }
-        const headers = await FileHelper.getFileContentTypeHeader(normalizedUrl);
-        return { content: raw, headers };
+        return { content: this.noteEditorHtml(filename, saved), headers: HTML_ROUTE_HEADERS };
     }
 }

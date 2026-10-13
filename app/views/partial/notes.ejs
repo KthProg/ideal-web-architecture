@@ -1,0 +1,9 @@
+<% if (notes.length === 0) { %>
+<p>No notes found.</p>
+<% } else { %>
+<ul class="notes-list">
+    <% notes.forEach(note => { %>
+        <%- include('note-item', { note }) %>
+    <% }) %>
+</ul>
+<% } %>
