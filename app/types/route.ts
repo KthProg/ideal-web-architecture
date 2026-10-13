@@ -1,19 +1,10 @@
-import type { HTTP_METHOD, RouteRequest, RouteResponse } from "./request.ts";
+import { HandlerResponse } from "./handler-response.ts";
+import { HTTP_METHOD, RouteRequest, RouteResponse } from "./request.ts";
 
-export type Route = {
-    path?: string | RegExp;
-    getData: (
-        request: RouteRequest,
-        response: RouteResponse,
-    ) => Promise<{
-        status: number;
-        content: string;
-    }> | Promise<string>;
-    templateFile?: string;
-    allowedMethods: HTTP_METHOD[] | HTTP_METHOD;
-    headers?: Record<string, string>;
-    getHeaders?: (
-        request: RouteRequest,
-        response: RouteResponse,
-    ) => Promise<Record<string, string>>;
+export type RouteMetadata = {
+    httpMethod: HTTP_METHOD;
+    path: string | RegExp;
+    handlerKey: string;
 };
+
+export type HandlerMethod = (req: RouteRequest, res: RouteResponse) => Promise<HandlerResponse>;

@@ -1,89 +1,43 @@
-import { HTML_ROUTE_HEADERS, HTTP_METHODS, TEXT_ROUTE_HEADERS } from "./constants/http.ts";
-import { FileHelper } from "./helpers/file.ts";
-import type { Route } from "./types/route.ts";
+import { HTML_ROUTE_HEADERS } from './constants/http.ts';
+import { FileHelper } from './helpers/file.ts';
+import { Router } from './helpers/router.ts';
+import { Get, Post } from './decorators/route.ts';
 import { render as renderHomePage } from './render/home.ts';
 import { render as renderFilesList } from './render/files.ts';
-import { FILENAME_REGEX_EXPRESSION } from "./constants/file.ts";
+import { FILENAME_REGEX_EXPRESSION } from './constants/file.ts';
+import type { RouteRequest, RouteResponse } from './types/request.ts';
+import type { HandlerResponse } from './types/handler-response.ts';
 
-// FUTURE: RouteBuilder so we can compose routes more easily
-// FUTURE: some type of route handler persistent context, so we can do
-// things like open a file once in getData, and have the buffer available
-// in getHeaders without opening it again
-// FUTURE: middleware layer to transform incoming requests
-export const ROUTES: Route[] = [
-    {
-        path: new RegExp(`\/public\/${FILENAME_REGEX_EXPRESSION}`),
-        allowedMethods: 'GET',
-        getData: async (req, _res) => {
-            const data = await FileHelper.readTextContent(req.url);
-            console.info(`file head (${req.url})`, data.slice(0, 100));
-            return data;
-        },
-        getHeaders: async (req, _res) => {
-            return await FileHelper.getFileContentTypeHeader(req.url);
-        },
-    }, {
-        path: '/',
-        allowedMethods: 'GET',
-        getData: async (_req, _res) => await renderHomePage(),
-        headers: HTML_ROUTE_HEADERS,
-    }, {
-        path: '/files',
-        allowedMethods: 'GET',
-        getData: async (_req, _res) => await renderFilesList(),
-        headers: HTML_ROUTE_HEADERS,
-    }, {
-        path: '/files',
-        allowedMethods: 'POST',
-        getData: async (_req, _res) => {
-            // TODO: some way to fall through to GET route to avoid duplication here
-            await FileHelper.createRandomFile();
-            return await renderFilesList();
-        },
-        headers: HTML_ROUTE_HEADERS,
-    }, {
-        path: new RegExp(`\/file\/${FILENAME_REGEX_EXPRESSION}`),
-        allowedMethods: 'GET',
-        getData: async (req, _res) => {
-            const normalizedUrl = req.url.replace('/file/', '/notes/');
-            return await FileHelper.readTextContent(normalizedUrl);
-        },
-        getHeaders: async (req, _res) => {
-            const normalizedUrl = req.url.replace('/file/', '/notes/');
-            return await FileHelper.getFileContentTypeHeader(normalizedUrl);
-        },
-    },
-];
+export class AppRouter extends Router {
+    @Get(new RegExp(`\/public\/${FILENAME_REGEX_EXPRESSION}`))
+    async servePublicFile(req: RouteRequest, _res: RouteResponse): Promise<HandlerResponse> {
+        const content = await FileHelper.readTextContent(req.url);
+        console.info(`file head (${req.url})`, content.slice(0, 100));
+        const headers = await FileHelper.getFileContentTypeHeader(req.url);
+        return { content, headers };
+    }
 
-export const NOT_FOUND_ROUTE: Route = {
-    allowedMethods: HTTP_METHODS,
-    getData: async (req, _res) => {
-        return {
-            status: 404,
-            // TODO: safe-escape URL in case HTML injected
-            content: `No route matches URL: ${req.url}`,
-        };
-    },
-};
+    @Get('/')
+    async home(): Promise<HandlerResponse> {
+        return { content: await renderHomePage(), headers: HTML_ROUTE_HEADERS };
+    }
 
-export const METHOD_NOT_ALLOWED_ROUTE: Route = {
-    allowedMethods: HTTP_METHODS,
-    getData: async (req, _res) => {
-        return {
-            status: 405,
-            // TODO: safe-escape URL in case HTML injected
-            content: `Method ${req.method} not allowed on route: ${req.url}`,
-        };
-    },
-};
+    @Get('/files')
+    async getFiles(): Promise<HandlerResponse> {
+        return { content: await renderFilesList(), headers: HTML_ROUTE_HEADERS };
+    }
 
-export const SERVER_ERROR_ROUTE: Route = {
-    allowedMethods: HTTP_METHODS,
-    getData: async (req, _res) => {
-        return {
-            status: 500,
-            // TODO: safe-escape URL in case HTML injected
-            content: `Error handling method ${req.method} on route: ${req.url}`,
-        };
-    },
-};
+    @Post('/files')
+    async createFile(): Promise<HandlerResponse> {
+        await FileHelper.createRandomFile();
+        return { content: await renderFilesList(), headers: HTML_ROUTE_HEADERS };
+    }
+
+    @Get(new RegExp(`\/file\/${FILENAME_REGEX_EXPRESSION}`))
+    async getFile(req: RouteRequest): Promise<HandlerResponse> {
+        const normalizedUrl = req.url.replace('/file/', '/notes/');
+        const content = await FileHelper.readTextContent(normalizedUrl);
+        const headers = await FileHelper.getFileContentTypeHeader(normalizedUrl);
+        return { content, headers };
+    }
+}

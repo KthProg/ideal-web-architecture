@@ -14,8 +14,11 @@
   "license": "ISC",
   "author": "Kyle Hooks",
   "main": "index.js",
+  "pnpm": {
+    "onlyBuiltDependencies": ["detect-character-encoding", "esbuild"]
+  },
   "scripts": {
-    "dev": "node --watch app/server.ts",
+    "dev": "tsx --watch app/server.ts",
     "build": "cp node_modules/htmx.org/dist/htmx.js app/public/htmx.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -30,6 +33,7 @@
     "@types/detect-character-encoding": "^0.7.2",
     "@types/ejs": "^3.1.5",
     "@types/node": "^26.6.2",
-    "parcel": "^2.16.4"
+    "parcel": "^2.16.4",
+    "tsx": "^4.23.15"
   }
 }

@@ -1,97 +1,69 @@
-import { IncomingMessage } from "http";
-import type { Route } from "../types/route.ts";
-import type { RouteRequest, RouteResponse } from "../types/request.ts";
-import { METHOD_NOT_ALLOWED_ROUTE, NOT_FOUND_ROUTE, SERVER_ERROR_ROUTE } from "../routes.ts";
-import { DEFAULT_RESPONSE_HEADERS } from "../constants/http.ts";
-import { ROUTE_JSON_REPLACER } from "./json.ts";
+import { IncomingMessage } from 'http';
+import type { RouteRequest, RouteResponse } from '../types/request.ts';
+import type { HandlerResponse } from '../types/handler-response.ts';
+import { DEFAULT_RESPONSE_HEADERS } from '../constants/http.ts';
+import { ROUTE_METADATA_SYMBOL } from '../constants/routes.ts';
+import { HandlerMethod, RouteMetadata } from '../types/route.ts';
 
-export class Router {
-    private routes: Route[] = [];
-
-    constructor(routes: Route[]){
-        this.routes = routes;
+export abstract class Router {
+    private notFound(req: RouteRequest): HandlerResponse {
+        return { status: 404, content: `No route matches URL: ${req.url}` };
     }
 
-    private static writeResponse(data: string | {
-        status: number;
-        content: string;
-    }, headers: Record<string, string>, response: RouteResponse) {
-        if(typeof data === 'string'){
-            response.writeHead(200, headers);
-            response.end(data);
-        } else {
-            response.writeHead(data.status, headers);
-            response.end(data.content);
-        }
+    private methodNotAllowed(req: RouteRequest): HandlerResponse {
+        return { status: 405, content: `Method ${req.method} not allowed on route: ${req.url}` };
     }
 
-    private static async getHeaders(route: Route, request: RouteRequest, response: RouteResponse) {
-        if(route.getHeaders){
-            return await route.getHeaders(request, response);
-        }
-        return route.headers ?? DEFAULT_RESPONSE_HEADERS;
+    private serverError(req: RouteRequest): HandlerResponse {
+        return { status: 500, content: `Error handling method ${req.method} on route: ${req.url}` };
     }
 
-    async handleRoute(
-        request: IncomingMessage,
-        response: RouteResponse
-    ) {
-        const requestWithUrlAndMethod = request as RouteRequest;
+    private static writeResponse(result: HandlerResponse, response: RouteResponse) {
+        response.writeHead(result.status ?? 200, result.headers ?? DEFAULT_RESPONSE_HEADERS);
+        response.end(result.content);
+    }
 
-        const urlPath = request.url;
-        if(!urlPath){
-            const serverErrorResponseData = await SERVER_ERROR_ROUTE.getData(requestWithUrlAndMethod, response);
-            const serverErrorResponseHeaders = await Router.getHeaders(SERVER_ERROR_ROUTE, requestWithUrlAndMethod, response);
-            Router.writeResponse(serverErrorResponseData, serverErrorResponseHeaders, response);
+    private getRouteMetadata(): RouteMetadata[] {
+        return Object.getPrototypeOf(this)[ROUTE_METADATA_SYMBOL] ?? [];
+    }
+
+    async handleRoute(request: IncomingMessage, response: RouteResponse) {
+        const req = request as RouteRequest;
+
+        if (!req.url || !req.method) {
+            Router.writeResponse(this.serverError(req), response);
             return;
         }
 
-        const method = request.method;
-        if(!method){
-            const serverErrorResponseData = await SERVER_ERROR_ROUTE.getData(requestWithUrlAndMethod, response);
-            const serverErrorResponseHeaders = await Router.getHeaders(SERVER_ERROR_ROUTE, requestWithUrlAndMethod, response);
-            Router.writeResponse(serverErrorResponseData, serverErrorResponseHeaders, response);
-            return;
-        }
+        const routes = this.getRouteMetadata();
 
-        // FUTURE: multi-route matching (how to handle?)
-        const routesMatchingPath = this.routes.filter((route) => {
-            if(!route.path){
-                return true;
-            }
-            if(typeof route.path === 'string'){
-                return urlPath === route.path;
-            }
-            return route.path.test(urlPath);
+        const pathMatches = routes.filter(r => {
+            if (typeof r.path === 'string') return req.url === r.path;
+            return r.path.test(req.url);
         });
 
-        console.info('routes matching path:', routesMatchingPath.length);
+        console.info('routes matching path:', pathMatches.length);
 
-        // not found route by default, only search for matching route if
-        // there are path matches to search
-        let firstMatchRoute = NOT_FOUND_ROUTE;
-        if(routesMatchingPath.length > 0) {
-            // matched by path, find by method from those matches.
-            // if no match then route found but method invalid
-            firstMatchRoute = routesMatchingPath.find((route) => {
-                if(typeof route.allowedMethods === 'string'){
-                    return route.allowedMethods === requestWithUrlAndMethod.method;
-                }
-                return route.allowedMethods.includes(requestWithUrlAndMethod.method);
-            }) ?? METHOD_NOT_ALLOWED_ROUTE;
+        if (pathMatches.length === 0) {
+            Router.writeResponse(this.notFound(req), response);
+            return;
         }
 
-        console.info('matched route', JSON.stringify(firstMatchRoute, ROUTE_JSON_REPLACER, 2));
+        const match = pathMatches.find(r => r.httpMethod === req.method);
+        if (!match) {
+            Router.writeResponse(this.methodNotAllowed(req), response);
+            return;
+        }
+
+        console.info('matched route handler:', match.handlerKey);
 
         try {
-            const data = await firstMatchRoute.getData(requestWithUrlAndMethod, response);
-            const headers = await Router.getHeaders(firstMatchRoute, requestWithUrlAndMethod, response);
-            Router.writeResponse(data, headers, response);
+            const handler = (this as Object as Record<string, HandlerMethod>)[match.handlerKey];
+            const result = await handler.call(this, req, response);
+            Router.writeResponse(result, response);
         } catch (ex) {
             console.error(ex);
-            const serverErrorResponseData = await SERVER_ERROR_ROUTE.getData(requestWithUrlAndMethod, response);
-            const serverErrorResponseHeaders = await Router.getHeaders(SERVER_ERROR_ROUTE, requestWithUrlAndMethod, response);
-            Router.writeResponse(serverErrorResponseData, serverErrorResponseHeaders, response);
+            Router.writeResponse(this.serverError(req), response);
         }
     }
 }

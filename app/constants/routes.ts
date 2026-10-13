@@ -1,0 +1,1 @@
+export const ROUTE_METADATA_SYMBOL = Symbol('routes');
