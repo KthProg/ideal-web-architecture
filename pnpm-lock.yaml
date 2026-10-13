@@ -36,6 +36,9 @@ importers:
       '@types/node':
         specifier: ^26.6.2
         version: 26.6.2
+      esbuild:
+        specifier: ^0.28.2
+        version: 0.28.2
       parcel:
         specifier: ^2.16.4
         version: 2.16.4(@swc/helpers@0.5.23)

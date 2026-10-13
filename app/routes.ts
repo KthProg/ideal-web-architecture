@@ -67,7 +67,7 @@ export class AppRouter extends Router {
         const normalizedUrl = req.url.replace('/file/', '/notes/');
         const raw = await FileHelper.readTextContent(normalizedUrl);
         if (path.extname(normalizedUrl).toLowerCase() === '.md') {
-            return { content: await marked(raw), headers: HTML_ROUTE_HEADERS };
+            return { content: `<markdown-editor>${await marked(raw)}</markdown-editor>`, headers: HTML_ROUTE_HEADERS };
         }
         const headers = await FileHelper.getFileContentTypeHeader(normalizedUrl);
         return { content: raw, headers };

@@ -22,7 +22,8 @@
   },
   "scripts": {
     "dev": "tsx --watch app/server.ts",
-    "build": "cp node_modules/htmx.org/dist/htmx.js app/public/htmx.js",
+    "build": "cp node_modules/htmx.org/dist/htmx.js app/public/htmx.js && esbuild app/components/*.ts --format=esm --outdir=app/public/components",
+    "watch:components": "esbuild app/components/*.ts --format=esm --outdir=app/public/components --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -37,6 +38,7 @@
     "@types/detect-character-encoding": "^0.7.2",
     "@types/ejs": "^3.1.5",
     "@types/node": "^26.6.2",
+    "esbuild": "^0.28.2",
     "parcel": "^2.16.4",
     "tsx": "^4.23.15"
   }
