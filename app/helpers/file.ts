@@ -52,7 +52,8 @@ export class FileHelper {
 
     static async detectContentType(url: string) {
         const filePath = path.join(FileHelper.rootDir, url);
-        return (await fileTypeFromFile(filePath)) ?? 'text/plain';
+        const detected = await fileTypeFromFile(filePath);
+        return detected?.mime ?? 'text/plain';
     }
 
     static async getFileContentTypeHeader(url: string) {

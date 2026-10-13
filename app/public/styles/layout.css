@@ -1,0 +1,25 @@
+.layout-app {
+    display: grid;
+    grid-template-columns: var(--layout-single-width) var(--layout-double-width);
+    grid-template-areas: "sidebar content";
+    gap: var(--space-md);
+    min-height: 100dvh;
+    padding: var(--space-md);
+}
+
+.layout-app__sidebar {
+    grid-area: sidebar;
+}
+
+.layout-app__content {
+    grid-area: content;
+}
+
+@media (width < 768px) {
+    .layout-app {
+        grid-template-columns: var(--layout-single-width);
+        grid-template-areas:
+            "content"
+            "sidebar";
+    }
+}

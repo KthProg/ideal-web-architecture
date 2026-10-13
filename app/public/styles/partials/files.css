@@ -1,0 +1,13 @@
+.files-list {
+    container-type: inline-size;
+    container-name: files-list;
+}
+
+@container files-list (min-width: 600px) {
+    .file-card {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        --color-surface: #f5f5f5;
+        background: var(--color-surface);
+    }
+}
