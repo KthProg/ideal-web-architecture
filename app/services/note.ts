@@ -9,11 +9,15 @@ export class NoteService implements INoteService {
         return FileService.instance;
     }
 
-    async createRandomFile(notesDir = FileService.defaultFilesDir) {
+    static get notesDir(){
+        return path.join(FileService.rootDir, 'notes');
+    }
+
+    async createRandomFile(notesDir = NoteService.notesDir) {
         return await this.fileService.createFile(`test-${Date.now()}.md`, notesDir);
     }
 
-    async readNoteContent(filename: string, notesDir = FileService.defaultFilesDir) {
+    async readNoteContent(filename: string, notesDir = NoteService.notesDir) {
         const safeName = path.basename(filename);
         const filePath = path.join(notesDir, safeName);
         const fileData = await fs.readFile(filePath);
@@ -21,7 +25,7 @@ export class NoteService implements INoteService {
         return this.fileService.decodeFile(fileData, encoding);
     }
 
-    async writeNoteContent(filename: string, content: string, notesDir = FileService.defaultFilesDir) {
+    async writeNoteContent(filename: string, content: string, notesDir = NoteService.notesDir) {
         const safeName = path.basename(filename);
         const filePath = path.join(notesDir, safeName);
         await fs.writeFile(filePath, content, { encoding: 'utf8' });

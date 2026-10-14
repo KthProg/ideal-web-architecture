@@ -22,10 +22,6 @@ export class FileService implements IFileService {
         return path.join(FileService.rootDir, 'public');
     }
 
-    static get defaultFilesDir(){
-        return path.join(FileService.rootDir, 'notes');
-    }
-
     decodeFile(bytes: Buffer, encoding: string) {
         try {
             return new TextDecoder(encoding).decode(bytes);
@@ -34,12 +30,31 @@ export class FileService implements IFileService {
         }
     }
 
-    async createFile(fileNameWithExtension: string, directory = FileService.defaultFilesDir) {
+    async createFile(fileNameWithExtension: string, directory = FileService.rootDir, content?: string) {
         const newFilePath = path.join(directory, fileNameWithExtension);
-        await fs.writeFile(newFilePath, '', {
+        await fs.writeFile(newFilePath, content ?? '', {
             flag: 'wx'
         });
         return newFilePath;
+    }
+
+    async writeFile(fileNameWithExtension: string, directory = FileService.rootDir, content: string): Promise<string> {
+        const filePath = path.join(directory, fileNameWithExtension);
+        await fs.writeFile(filePath, content, {
+            flag: 'wx'
+        });
+        return filePath;
+    }
+
+    async checkFileExists(fileNameWithExtension: string, directory = FileService.rootDir): Promise<boolean> {
+        const filePath = path.join(directory, fileNameWithExtension);
+        try {
+            await fs.stat(filePath);
+            return true;
+        } catch (ex) {
+            console.error(`Failed to stat file ${fileNameWithExtension}`, ex);
+            return false;
+        }
     }
 
     async readTextContent(url: string) {

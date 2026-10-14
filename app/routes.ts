@@ -10,20 +10,28 @@ const PUBLIC_MIME_TYPES: Record<string, string> = {
     '.png': 'image/png',
     '.ico': 'image/x-icon',
 };
-import { HTML_ROUTE_HEADERS, NOTES_LOCATION_HEADER } from './constants/http.ts';
+import { HTML_ROUTE_HEADERS, JSON_ROUTE_HEADERS, NOTES_LOCATION_HEADER } from './constants/http.ts';
 import { FileService } from './services/file.ts';
 import { Router } from './services/router.ts';
-import { Get, Post } from './decorators/route.ts';
+import { Get, Post, Put } from './decorators/route.ts';
 import { FILENAME_REGEX_EXPRESSION } from './constants/file.ts';
 import type { RouteRequest, RouteResponse } from './types/request.ts';
 import type { HandlerResponse } from './types/handler-response.ts';
 import { INoteService } from './services/interfaces/note.ts';
 import { NoteService } from './services/note.ts';
+import { IConfigService } from './services/interfaces/config.ts';
+import { ConfigService } from './services/config.ts';
+import { AppConfig } from './types/config.ts';
 
 export class AppRouter extends Router {
     private _notesService: INoteService | null = null;
     get notesService() {
         return this._notesService ?? new NoteService();
+    }
+
+    private _configService: IConfigService | null = null;
+    get configService() {
+        return this._configService ?? new ConfigService();
     }
 
     get fileService() {
@@ -33,7 +41,7 @@ export class AppRouter extends Router {
     private notesDir(req: RouteRequest): string {
         const header = req.headers[NOTES_LOCATION_HEADER.toLowerCase()];
         const location = Array.isArray(header) ? header[0] : header;
-        return (location && path.isAbsolute(location)) ? location : FileService.defaultFilesDir;
+        return (location && path.isAbsolute(location)) ? location : NoteService.notesDir;
     }
 
     private async renderNotesList(notesDir: string): Promise<string> {
@@ -104,5 +112,25 @@ export class AppRouter extends Router {
         await this.notesService.writeNoteContent(filename, content, notesDir);
         const saved = await this.notesService.readNoteContent(filename, notesDir);
         return { content: saved, headers: HTML_ROUTE_HEADERS };
+    }
+
+    @Put('/config')
+    async updateConfig(req: RouteRequest): Promise<HandlerResponse> {
+        const body = new URLSearchParams(await this.readBody(req));
+        const content = body.get('config') ?? '';
+        try {
+            const configPartial: Partial<AppConfig> = JSON.parse(content);
+            await this.configService.updateConfig(configPartial);
+            return { content: '' };
+        } catch(ex) {
+            console.error('Failed to update config', ex);
+            return { content: '' };
+        }
+    }
+
+    @Get('/config')
+    async getConfig(req: RouteRequest): Promise<HandlerResponse> {
+        const config = await this.configService.readConfig();
+        return { content: JSON.stringify(config), headers: JSON_ROUTE_HEADERS };
     }
 }

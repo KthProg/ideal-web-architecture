@@ -10,6 +10,10 @@ export const TEXT_ROUTE_HEADERS = {
     'Content-Type': 'text/plain; charset=utf-8'
 } as const;
 
+export const JSON_ROUTE_HEADERS = {
+    'Content-Type': 'application/json; charset=utf-8'
+} as const;
+
 export const DEFAULT_RESPONSE_HEADERS = {} as const;
 
 export const NOTES_LOCATION_HEADER = 'X-Notes-Location' as const;
