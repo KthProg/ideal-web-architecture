@@ -16,6 +16,10 @@ export class FileService implements IFileService {
         return path.join(FileService.rootDir, 'public');
     }
 
+    static urlToPath(url: string): string {
+        return path.join(FileService.rootDir, url);
+    }
+
     decodeFile(bytes: Buffer, encoding: string) {
         try {
             return new TextDecoder(encoding).decode(bytes);
@@ -24,47 +28,38 @@ export class FileService implements IFileService {
         }
     }
 
-    async createFile(fileNameWithExtension: string, directory = FileService.rootDir, content?: string) {
-        const newFilePath = path.join(directory, fileNameWithExtension);
-        await fs.writeFile(newFilePath, content ?? '', {
-            flag: 'wx'
-        });
-        return newFilePath;
+    async createFile(filePath: string, content?: string): Promise<string> {
+        await fs.writeFile(filePath, content ?? '', { flag: 'wx' });
+        return filePath;
     }
 
-    async writeFile(fileNameWithExtension: string, directory = FileService.rootDir, content: string): Promise<string> {
-        const filePath = path.join(directory, fileNameWithExtension);
+    async writeFile(filePath: string, content: string): Promise<string> {
         await fs.writeFile(filePath, content);
         return filePath;
     }
 
-    async checkFileExists(fileNameWithExtension: string, directory = FileService.rootDir): Promise<boolean> {
-        const filePath = path.join(directory, fileNameWithExtension);
+    async checkFileExists(filePath: string): Promise<boolean> {
         try {
             await fs.stat(filePath);
             return true;
-        } catch (ex) {
-            console.error(`Failed to stat file ${fileNameWithExtension}`, ex);
+        } catch {
             return false;
         }
     }
 
-    async readTextContent(url: string) {
-        const filePath = path.join(FileService.rootDir, url);
+    async readTextContent(filePath: string): Promise<string> {
         const fileData = await fs.readFile(filePath);
-        const currentEncoding = await this.detectFileEncoding(url);
-        return this.decodeFile(fileData, currentEncoding);
+        const encoding = await this.detectFileEncoding(filePath);
+        return this.decodeFile(fileData, encoding);
     }
 
-    async detectFileEncoding(url: string) {
-        const filePath = path.join(FileService.rootDir, url);
+    async detectFileEncoding(filePath: string): Promise<string> {
         const fileData = await fs.readFile(filePath);
         const encodingResult = getEncoding(fileData);
         return encodingResult?.encoding ?? 'utf8';
     }
 
-    async detectContentType(url: string) {
-        const filePath = path.join(FileService.rootDir, url);
+    async detectContentType(filePath: string): Promise<string> {
         const detected = await fileTypeFromFile(filePath);
         return detected?.mime ?? 'text/plain';
     }

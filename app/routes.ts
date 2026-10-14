@@ -65,7 +65,7 @@ export class AppRouter extends Router {
 
     @Get(new RegExp(`\/public\/${FILENAME_REGEX_EXPRESSION}`))
     async servePublicFile(req: RouteRequest, _res: RouteResponse): Promise<HandlerResponse> {
-        const content = await this.fileService.readTextContent(req.url);
+        const content = await this.fileService.readTextContent(FileService.urlToPath(req.url));
         console.info(`file head (${req.url})`, content.slice(0, 100));
         const ext = path.extname(req.url).toLowerCase();
         const mimeType = PUBLIC_MIME_TYPES[ext] ?? 'text/plain';

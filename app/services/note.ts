@@ -1,7 +1,5 @@
 import path from "path";
 import { INoteService } from "./interfaces/note.ts";
-import fs from 'fs/promises';
-import getEncoding from 'detect-character-encoding';
 import { IConfigService } from "./interfaces/config.ts";
 import { IFileService } from "./interfaces/file.ts";
 
@@ -14,27 +12,21 @@ export class NoteService implements INoteService {
     }
 
     async createRandomFile() {
-        return await this.fileService.createFile(`test-${Date.now()}.md`, '', this.notesDir);
+        return await this.fileService.createFile(path.join(this.notesDir, `test-${Date.now()}.md`));
     }
 
     async readNoteContent(filename: string) {
-        const safeName = path.basename(filename);
-        const filePath = path.join(this.notesDir, safeName);
-        const fileData = await fs.readFile(filePath);
-        const encoding = getEncoding(fileData)?.encoding ?? 'utf8';
-        return this.fileService.decodeFile(fileData, encoding);
+        return this.fileService.readTextContent(path.join(this.notesDir, path.basename(filename)));
     }
 
     async writeNoteContent(filename: string, content: string) {
-        const safeName = path.basename(filename);
-        const filePath = path.join(this.notesDir, safeName);
-        await fs.writeFile(filePath, content, { encoding: 'utf8' });
+        await this.fileService.writeFile(path.join(this.notesDir, path.basename(filename)), content);
         return content;
     }
 
-    async getFileContentTypeHeader(url: string) {
-        const encoding = await this.fileService.detectFileEncoding(url);
-        const mimeType = await this.fileService.detectContentType(url);
+    async getFileContentTypeHeader(filePath: string) {
+        const encoding = await this.fileService.detectFileEncoding(filePath);
+        const mimeType = await this.fileService.detectContentType(filePath);
         return {
             'Content-Type': `${mimeType}; charset=${encoding}`
         };

@@ -1,9 +1,9 @@
 export interface IFileService {
-    createFile(fileNameWithExtension: string, content?: string, directory?: string): Promise<string>;
-    writeFile(fileNameWithExtension: string, content: string, directory?: string): Promise<string>;
-    checkFileExists(fileNameWithExtension: string, directory?: string): Promise<boolean>;
-    readTextContent(url: string): Promise<string>;
-    detectFileEncoding(url: string): Promise<string>;
-    detectContentType(url: string): Promise<string>;
+    createFile(filePath: string, content?: string): Promise<string>;
+    writeFile(filePath: string, content: string): Promise<string>;
+    checkFileExists(filePath: string): Promise<boolean>;
+    readTextContent(filePath: string): Promise<string>;
+    detectFileEncoding(filePath: string): Promise<string>;
+    detectContentType(filePath: string): Promise<string>;
     decodeFile(bytes: Buffer, encoding: string): string;
 }
