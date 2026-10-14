@@ -7,12 +7,6 @@ import { fileTypeFromFile } from "file-type";
 import { IFileService } from './interfaces/file.ts';
 
 export class FileService implements IFileService {
-    private static _instance: FileService | null = null;
-
-    static get instance() {
-        return FileService._instance ?? new FileService();
-    }
-
     static get rootDir(){
         const __filename = fileURLToPath(import.meta.url);
         return path.join(dirname(__filename), '../');
@@ -40,9 +34,7 @@ export class FileService implements IFileService {
 
     async writeFile(fileNameWithExtension: string, directory = FileService.rootDir, content: string): Promise<string> {
         const filePath = path.join(directory, fileNameWithExtension);
-        await fs.writeFile(filePath, content, {
-            flag: 'wx'
-        });
+        await fs.writeFile(filePath, content);
         return filePath;
     }
 
@@ -60,8 +52,8 @@ export class FileService implements IFileService {
     async readTextContent(url: string) {
         const filePath = path.join(FileService.rootDir, url);
         const fileData = await fs.readFile(filePath);
-        const currentEncoding = await FileService.instance.detectFileEncoding(url);
-        return FileService.instance.decodeFile(fileData, currentEncoding);
+        const currentEncoding = await this.detectFileEncoding(url);
+        return this.decodeFile(fileData, currentEncoding);
     }
 
     async detectFileEncoding(url: string) {

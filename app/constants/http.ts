@@ -15,5 +15,3 @@ export const JSON_ROUTE_HEADERS = {
 } as const;
 
 export const DEFAULT_RESPONSE_HEADERS = {} as const;
-
-export const NOTES_LOCATION_HEADER = 'X-Notes-Location' as const;

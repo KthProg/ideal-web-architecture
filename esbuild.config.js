@@ -3,12 +3,9 @@ import { readdirSync, copyFileSync } from 'node:fs';
 
 const watch = process.argv.includes('--watch');
 
-const entryPoints = [
-  ...readdirSync('app/components')
-    .filter(f => f.endsWith('.ts'))
-    .map(f => `app/components/${f}`),
-  'app/services/config.ts',
-];
+const entryPoints = readdirSync('app/components')
+  .filter(f => f.endsWith('.ts'))
+  .map(f => `app/components/${f}`);
 
 const config = {
   entryPoints,
