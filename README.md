@@ -4,26 +4,36 @@ My ideal web architecture: HTMX and web components running on Node.
 
 ## Stack
 
-- **Node.js** — server (run with `--watch` for dev)
+- **Node.js + TypeScript** — server via `tsx`
 - **HTMX** — hypermedia-driven UI
 - **EJS** — server-side templating
+- **Web Components** — client-side components compiled with esbuild
+- **marked** — Markdown rendering
 
 ## Structure
 
 ```
 app/
   server.ts        # Entry point
-  helpers/         # Shared utilities
-  render/          # Route handlers that produce HTML
+  routes.ts        # Route definitions
+  components/      # TypeScript web components (source)
+  constants/       # Shared constants (routes, HTTP, events, etc.)
+  decorators/      # TypeScript decorators (e.g. @route)
+  helpers/         # Shared utilities (file I/O, router)
+  notes/           # Markdown note files
+  public/          # Static assets
+    components/    # Compiled web components (esbuild output)
+    styles/        # CSS (base, layout, utilities, partials)
+    htmx.js        # Copied from node_modules on build
+  types/           # Shared TypeScript types
   views/           # EJS templates
-  notes/           # Markdown content
-  public/          # Static assets (htmx.js)
-index.html         # Standalone HTML5 page
+    partial/       # Partial templates (note-item, notes list)
 ```
 
 ## Dev
 
 ```sh
-npm run build  # copies htmx.js from node_modules to app/public/
-npm run dev    # starts server with file watching
+pnpm run build            # copies htmx.js and bundles web components
+pnpm run dev              # starts server with file watching (tsx --watch)
+pnpm run watch:components # watches and rebuilds web components on change
 ```
