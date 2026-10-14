@@ -1,5 +1,6 @@
 node_modules
 notes
 app/public/components
+app/public/htmx.js
 .parcel*
 .claude
