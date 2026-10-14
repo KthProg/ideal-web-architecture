@@ -2,6 +2,7 @@ export interface IFileService {
     createFile(filePath: string, content?: string): Promise<string>;
     writeFile(filePath: string, content: string): Promise<string>;
     checkFileExists(filePath: string): Promise<boolean>;
+    ensureDirectory(dirPath: string): Promise<void>;
     readTextContent(filePath: string): Promise<string>;
     detectFileEncoding(filePath: string): Promise<string>;
     detectContentType(filePath: string): Promise<string>;

@@ -15,6 +15,11 @@ const server = createServer(async (request, response) => {
     }
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
+    try {
+        await ROUTER.configService.initialize();
+    } catch (ex) {
+        console.error('Error initializing config service', ex);
+    }
     console.log(`http://localhost:${PORT}`);
 });
