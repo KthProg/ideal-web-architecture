@@ -1,0 +1,48 @@
+@scope (settings-panel) {
+    .settings-panel {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-lg);
+    }
+
+    .settings-panel__heading {
+        font-size: var(--text-heading-md);
+        font-weight: var(--weight-heading);
+        margin: 0;
+    }
+
+    .settings-panel__form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md);
+        max-width: 480px;
+    }
+
+    .settings-panel__field {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+
+    .settings-panel__label {
+        font-size: var(--text-caption);
+        font-weight: var(--weight-label);
+        color: var(--color-text-muted);
+    }
+
+    .settings-panel__input {
+        font: inherit;
+        font-size: var(--text-body);
+        padding: var(--space-sm) var(--space-md);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-default);
+        background: var(--color-bg);
+        color: var(--color-text);
+        width: 100%;
+
+        &:focus {
+            outline: 2px solid var(--color-accent-600);
+            outline-offset: 1px;
+        }
+    }
+}

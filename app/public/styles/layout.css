@@ -10,10 +10,52 @@
 
     .layout-app__sidebar {
         grid-area: sidebar;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md);
         background-color: var(--color-accent);
         padding: var(--space-md);
         box-shadow: var(--shadow-md);
         border-radius: var(--radius-default);
+    }
+
+    .sidebar__actions {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+
+    #notes-list {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .sidebar__nav {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .sidebar__icon-btn {
+        --color-button-bg: transparent;
+        --color-button-text: var(--color-text);
+        --color-button-bg-hover: var(--color-accent-hover);
+        --color-button-text-hover: var(--color-on-accent);
+        display: flex;
+        align-items: center;
+        border: none;
+        padding: var(--space-sm);
+        box-shadow: none;
+        text-decoration: none;
+        color: var(--color-button-text);
+        border-radius: var(--radius-default);
+        cursor: pointer;
+        background: var(--color-button-bg);
+        transition: background var(--duration-transition) var(--ease-default);
+
+        &:hover {
+            background: var(--color-button-bg-hover);
+            color: var(--color-button-text-hover);
+        }
     }
 
     .layout-app__content {

@@ -7,6 +7,7 @@ class MarkdownEditor extends HTMLElement {
 
     private _markdown = '';
     private _connected = false;
+    private _observer: MutationObserver | null = null;
 
     get editable() {
         return this.hasAttribute('editable');
@@ -15,6 +16,19 @@ class MarkdownEditor extends HTMLElement {
     connectedCallback() {
         this._markdown = this.innerHTML;
         this._connected = true;
+        this._observer = new MutationObserver(() => {
+            this._markdown = this.innerHTML;
+            this.render();
+        });
+        // FUTURE: clean up event listeners
+        document.addEventListener(CustomEvents.EditorModeChange, (evt: Event) => {
+            const { mode } = (evt as CustomEvent).detail as { mode: EditorMode };
+            if (mode === EditorMode.ReadOnly) {
+                this.removeAttribute('editable');
+            } else {
+                this.setAttribute('editable', String(true));
+            }
+        });
         this.render();
     }
 
@@ -23,15 +37,10 @@ class MarkdownEditor extends HTMLElement {
     }
 
     private async render() {
-        // FUTURE: clean up event listeners
-        document.addEventListener(CustomEvents.EditorModeChange, (evt: Event) => {
-            const { mode } = (evt as CustomEvent).detail as { mode: EditorMode };
-            if(mode === EditorMode.ReadOnly) {
-                this.removeAttribute('editable');
-            } else {
-                this.setAttribute('editable', String(true));
-            }
-        });
+        // disconnect to prevent infinite render loop
+        // when handler runs on DOM change (children are
+        // replaced with text area in edit mode)
+        this._observer?.disconnect();
 
         if (this.editable) {
             const textarea = document.createElement('textarea');
@@ -49,6 +58,8 @@ class MarkdownEditor extends HTMLElement {
         } else {
             this.innerHTML = await marked(this._markdown);
         }
+
+        this._observer?.observe(this, { childList: true });
     }
 }
 

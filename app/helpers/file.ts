@@ -15,7 +15,7 @@ export class FileHelper {
         return path.join(FileHelper.rootDir, 'public');
     }
 
-    static get filesDir(){
+    static get defaultFilesDir(){
         return path.join(FileHelper.rootDir, 'notes');
     }
 
@@ -27,8 +27,8 @@ export class FileHelper {
         }
     }
 
-    static async createRandomFile() {
-        const newFilePath = path.join(FileHelper.filesDir, `test-${Date.now()}.md`);
+    static async createRandomFile(notesDir = FileHelper.defaultFilesDir) {
+        const newFilePath = path.join(notesDir, `test-${Date.now()}.md`);
         const newFileContent = `${Date.now()}`;
         await fs.writeFile(newFilePath, newFileContent, {
             flag: 'wx'
@@ -56,17 +56,17 @@ export class FileHelper {
         return detected?.mime ?? 'text/plain';
     }
 
-    static async readNoteContent(filename: string) {
+    static async readNoteContent(filename: string, notesDir = FileHelper.defaultFilesDir) {
         const safeName = path.basename(filename);
-        const filePath = path.join(FileHelper.filesDir, safeName);
+        const filePath = path.join(notesDir, safeName);
         const fileData = await fs.readFile(filePath);
         const encoding = getEncoding(fileData)?.encoding ?? 'utf8';
         return FileHelper.decodeFile(fileData, encoding);
     }
 
-    static async writeNoteContent(filename: string, content: string) {
+    static async writeNoteContent(filename: string, content: string, notesDir = FileHelper.defaultFilesDir) {
         const safeName = path.basename(filename);
-        const filePath = path.join(FileHelper.filesDir, safeName);
+        const filePath = path.join(notesDir, safeName);
         await fs.writeFile(filePath, content, { encoding: 'utf8' });
     }
 

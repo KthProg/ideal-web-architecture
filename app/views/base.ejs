@@ -7,22 +7,30 @@
     <%= title %>
   </title>
   <script src="public/htmx.js"></script>
+  <script src="public/components/app.js" type="module"></script>
   <script src="public/components/markdown-editor.js" defer></script>
   <script src="public/components/editor-controls.js" defer></script>
+  <script src="public/components/settings-panel.js" defer></script>
   <link rel="stylesheet" href="public/styles/main.css" />
 </head>
 
 <body class="layout-app">
   <aside class="layout-app__sidebar">
-    <button hx-post="/notes" hx-target="#notes-list" hx-swap="innerHTML">
-      Create Note
-    </button>
-    <button hx-get="/notes" hx-target="#notes-list" hx-swap="innerHTML">
-      Refresh
-    </button>
+    <div class="sidebar__actions">
+      <button hx-post="/notes" hx-target="#notes-list" hx-swap="innerHTML">
+        Create Note
+      </button>
+      <button hx-get="/notes" hx-target="#notes-list" hx-swap="innerHTML">
+        Refresh
+      </button>
+    </div>
     <section id="notes-list">
       <%- content %>
     </section>
+    <nav class="sidebar__nav">
+      <a class="sidebar__icon-btn" href="/" title="Home">🏠</a>
+      <button class="sidebar__icon-btn" hx-get="/settings" hx-target=".layout-app__content" hx-swap="innerHTML" title="Settings">⚙️</button>
+    </nav>
   </aside>
   <main class="layout-app__content">
     <section id="editor-controls" is="editor-controls">

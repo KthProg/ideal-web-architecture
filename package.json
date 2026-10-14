@@ -22,8 +22,8 @@
   },
   "scripts": {
     "dev": "tsx --watch app/server.ts",
-    "build": "cp node_modules/htmx.org/dist/htmx.js app/public/htmx.js && esbuild app/components/*.ts --bundle --format=esm --outdir=app/public/components",
-    "watch:components": "esbuild app/components/*.ts --bundle --format=esm --outdir=app/public/components --watch",
+    "build": "cp node_modules/htmx.org/dist/htmx.js app/public/htmx.js && esbuild app/components/*.ts app/helpers/config.ts --bundle --format=esm --outbase=app --outdir=app/public",
+    "watch:components": "esbuild app/components/*.ts app/helpers/config.ts --bundle --format=esm --outbase=app --outdir=app/public --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
