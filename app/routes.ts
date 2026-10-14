@@ -11,18 +11,29 @@ const PUBLIC_MIME_TYPES: Record<string, string> = {
     '.ico': 'image/x-icon',
 };
 import { HTML_ROUTE_HEADERS, NOTES_LOCATION_HEADER } from './constants/http.ts';
-import { FileHelper } from './helpers/file.ts';
-import { Router } from './helpers/router.ts';
+import { FileService } from './services/file.ts';
+import { Router } from './services/router.ts';
 import { Get, Post } from './decorators/route.ts';
 import { FILENAME_REGEX_EXPRESSION } from './constants/file.ts';
 import type { RouteRequest, RouteResponse } from './types/request.ts';
 import type { HandlerResponse } from './types/handler-response.ts';
+import { INoteService } from './services/interfaces/note.ts';
+import { NoteService } from './services/note.ts';
 
 export class AppRouter extends Router {
+    private _notesService: INoteService | null = null;
+    get notesService() {
+        return this._notesService ?? new NoteService();
+    }
+
+    get fileService() {
+        return FileService.instance;
+    }
+
     private notesDir(req: RouteRequest): string {
         const header = req.headers[NOTES_LOCATION_HEADER.toLowerCase()];
         const location = Array.isArray(header) ? header[0] : header;
-        return (location && path.isAbsolute(location)) ? location : FileHelper.defaultFilesDir;
+        return (location && path.isAbsolute(location)) ? location : FileService.defaultFilesDir;
     }
 
     private async renderNotesList(notesDir: string): Promise<string> {
@@ -30,13 +41,13 @@ export class AppRouter extends Router {
         const normalizedNotes = notes
             .filter(n => !n.isDirectory())
             .map(n => ({ name: n.name }));
-        const viewPath = path.join(FileHelper.rootDir, 'views/partial', 'notes.ejs');
+        const viewPath = path.join(FileService.rootDir, 'views/partial', 'notes.ejs');
         return ejs.renderFile(viewPath, { notes: normalizedNotes });
     }
 
     private async renderHome(req: RouteRequest): Promise<string> {
         const bodyContent = await this.renderNotesList(this.notesDir(req));
-        const baseViewPath = path.join(FileHelper.rootDir, 'views', 'base.ejs');
+        const baseViewPath = path.join(FileService.rootDir, 'views', 'base.ejs');
         return ejs.renderFile(baseViewPath, { content: bodyContent, title: 'Notes' });
     }
 
@@ -47,7 +58,7 @@ export class AppRouter extends Router {
 
     @Get(new RegExp(`\/public\/${FILENAME_REGEX_EXPRESSION}`))
     async servePublicFile(req: RouteRequest, _res: RouteResponse): Promise<HandlerResponse> {
-        const content = await FileHelper.readTextContent(req.url);
+        const content = await this.fileService.readTextContent(req.url);
         console.info(`file head (${req.url})`, content.slice(0, 100));
         const ext = path.extname(req.url).toLowerCase();
         const mimeType = PUBLIC_MIME_TYPES[ext] ?? 'text/plain';
@@ -61,7 +72,7 @@ export class AppRouter extends Router {
 
     @Get('/settings')
     async settings(): Promise<HandlerResponse> {
-        const viewPath = path.join(FileHelper.rootDir, 'views/partial', 'settings.ejs');
+        const viewPath = path.join(FileService.rootDir, 'views/partial', 'settings.ejs');
         return { content: await ejs.renderFile(viewPath), headers: HTML_ROUTE_HEADERS };
     }
 
@@ -73,14 +84,14 @@ export class AppRouter extends Router {
     @Post('/notes')
     async createNote(req: RouteRequest): Promise<HandlerResponse> {
         const notesDir = this.notesDir(req);
-        await FileHelper.createRandomFile(notesDir);
+        await this.notesService.createRandomFile(notesDir);
         return { content: await this.renderNotesList(notesDir), headers: HTML_ROUTE_HEADERS };
     }
 
     @Get(new RegExp(`\/note\/${FILENAME_REGEX_EXPRESSION}`))
     async getNote(req: RouteRequest): Promise<HandlerResponse> {
         const filename = decodeURIComponent(path.basename(req.url));
-        const content = await FileHelper.readNoteContent(filename, this.notesDir(req));
+        const content = await this.notesService.readNoteContent(filename, this.notesDir(req));
         return { content: this.noteEditorHtml(filename, content), headers: HTML_ROUTE_HEADERS };
     }
 
@@ -90,8 +101,8 @@ export class AppRouter extends Router {
         const filename = decodeURIComponent(path.basename(req.url));
         const body = new URLSearchParams(await this.readBody(req));
         const content = body.get('content') ?? '';
-        await FileHelper.writeNoteContent(filename, content, notesDir);
-        const saved = await FileHelper.readNoteContent(filename, notesDir);
+        await this.notesService.writeNoteContent(filename, content, notesDir);
+        const saved = await this.notesService.readNoteContent(filename, notesDir);
         return { content: saved, headers: HTML_ROUTE_HEADERS };
     }
 }

@@ -2,6 +2,7 @@ node_modules
 notes
 app/public/components
 app/public/helpers
+app/public/services
 app/public/htmx.js
 .parcel*
 .claude

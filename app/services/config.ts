@@ -1,8 +1,9 @@
 import { APP_NAME } from "../constants/app.ts";
 import { CONFIG_KEY_ID, DEFAULT_APP_CONFIG, OBJECT_KEY_PATH, OBJECT_STORE_NAME } from "../constants/config.ts";
 import { AppConfig } from "../types/config.ts"
+import { IConfigService } from "./interfaces/config.ts";
 
-export class ConfigHelper {
+export class ConfigService implements IConfigService {
     private _canPersist = false;
     private _database: IDBDatabase | null = null;
 
@@ -81,6 +82,6 @@ export class ConfigHelper {
                 this._config[appConfigPropName] = configUpdate[appConfigPropName]!;
             }
         });
-        await this.writeConfig();
+        return await this.writeConfig();
     }
 }

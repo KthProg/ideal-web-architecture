@@ -1,0 +1,64 @@
+import fs from 'fs/promises';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import getEncoding from 'detect-character-encoding';
+import iconv from 'iconv-lite';
+import { fileTypeFromFile } from "file-type";
+import { IFileService } from './interfaces/file.ts';
+
+export class FileService implements IFileService {
+    private static _instance: FileService | null = null;
+
+    static get instance() {
+        return FileService._instance ?? new FileService();
+    }
+
+    static get rootDir(){
+        const __filename = fileURLToPath(import.meta.url);
+        return path.join(dirname(__filename), '../');
+    }
+
+    static get publicDir(){
+        return path.join(FileService.rootDir, 'public');
+    }
+
+    static get defaultFilesDir(){
+        return path.join(FileService.rootDir, 'notes');
+    }
+
+    decodeFile(bytes: Buffer, encoding: string) {
+        try {
+            return new TextDecoder(encoding).decode(bytes);
+        } catch {
+            return iconv.decode(bytes, encoding);
+        }
+    }
+
+    async createFile(fileNameWithExtension: string, directory = FileService.defaultFilesDir) {
+        const newFilePath = path.join(directory, fileNameWithExtension);
+        await fs.writeFile(newFilePath, '', {
+            flag: 'wx'
+        });
+        return newFilePath;
+    }
+
+    async readTextContent(url: string) {
+        const filePath = path.join(FileService.rootDir, url);
+        const fileData = await fs.readFile(filePath);
+        const currentEncoding = await FileService.instance.detectFileEncoding(url);
+        return FileService.instance.decodeFile(fileData, currentEncoding);
+    }
+
+    async detectFileEncoding(url: string) {
+        const filePath = path.join(FileService.rootDir, url);
+        const fileData = await fs.readFile(filePath);
+        const encodingResult = getEncoding(fileData);
+        return encodingResult?.encoding ?? 'utf8';
+    }
+
+    async detectContentType(url: string) {
+        const filePath = path.join(FileService.rootDir, url);
+        const detected = await fileTypeFromFile(filePath);
+        return detected?.mime ?? 'text/plain';
+    }
+}

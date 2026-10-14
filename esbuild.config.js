@@ -7,7 +7,7 @@ const entryPoints = [
   ...readdirSync('app/components')
     .filter(f => f.endsWith('.ts'))
     .map(f => `app/components/${f}`),
-  'app/helpers/config.ts',
+  'app/services/config.ts',
 ];
 
 const config = {

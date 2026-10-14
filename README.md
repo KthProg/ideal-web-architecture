@@ -19,7 +19,7 @@ app/
   components/      # TypeScript web components (source)
   constants/       # Shared constants (routes, HTTP, events, etc.)
   decorators/      # TypeScript decorators (e.g. @route)
-  helpers/         # Shared utilities (file I/O, router)
+  services/        # Shared utilities (file I/O, router)
   notes/           # Markdown note files
   public/          # Static assets
     components/    # Compiled web components (esbuild output)

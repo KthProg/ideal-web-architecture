@@ -4,8 +4,9 @@ import type { HandlerResponse } from '../types/handler-response.ts';
 import { DEFAULT_RESPONSE_HEADERS } from '../constants/http.ts';
 import { ROUTE_METADATA_SYMBOL } from '../constants/routes.ts';
 import { HandlerMethod, RouteMetadata } from '../types/route.ts';
+import { IRouter } from './interfaces/router.ts';
 
-export abstract class Router {
+export abstract class Router implements IRouter {
     protected readBody(req: RouteRequest): Promise<string> {
         return new Promise((resolve, reject) => {
             const chunks: Buffer[] = [];

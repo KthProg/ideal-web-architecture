@@ -1,9 +1,9 @@
-import { ConfigHelper } from '../helpers/config.ts';
+import { ConfigService } from '../services/config.ts';
 import { CustomEvents, HtmxEvents } from '../constants/custom-events.ts';
 import { NOTES_LOCATION_HEADER } from '../constants/http.ts';
 import type { AppConfig } from '../types/config.ts';
 
-const configHelper = new ConfigHelper();
+const configHelper = new ConfigService();
 
 document.addEventListener('DOMContentLoaded', async () => {
     await configHelper.initialize();
