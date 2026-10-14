@@ -37,3 +37,24 @@ pnpm run build            # copies htmx.js and bundles web components
 pnpm run dev              # starts server with file watching (tsx --watch)
 pnpm run watch:components # watches and rebuilds web components on change
 ```
+
+## Resources
+
+- [HTMX](https://htmx.org/docs/)
+- [Custom Elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements)
+- [Custom Events](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent)
+- [CSS @layer](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer)
+- [CSS @scope](https://developer.mozilla.org/en-US/docs/Web/CSS/@scope)
+- [CSS Nesting](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting)
+- [BEM](https://getbem.com/)
+- [TypeScript Decorators](https://www.typescriptlang.org/docs/handbook/decorators.html)
+- [EJS](https://ejs.co/)
+- [marked](https://marked.js.org/)
+- [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
+- [MutationObserver](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver)
+- [esbuild](https://esbuild.github.io/)
+
+## Experimental / Limited Support
+
+- [CSS `field-sizing`](https://developer.mozilla.org/en-US/docs/Web/CSS/field-sizing) — sizes `<textarea>` to its content; Chromium-only as of late 2025
+- [CSS `lh` unit](https://developer.mozilla.org/en-US/docs/Web/CSS/length#lh) — relative to the element's line-height; supported in modern browsers since 2023
